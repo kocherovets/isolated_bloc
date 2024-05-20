@@ -1,7 +1,7 @@
 name: isolated_bloc
 description: "Support for running blocs in an isolate."
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/kocherovets/isolated_bloc.git
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

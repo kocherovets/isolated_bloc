@@ -1,0 +1,14 @@
+name: isolated_bloc
+description: "Support for running blocs in an isolate."
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  bloc: ^8.1.4
+
+dev_dependencies:
+  lints: ^3.0.0
+  test: ^1.24.0

@@ -161,3 +161,5 @@ class OriginalRelativesBloc extends Bloc<RelativesBlocEvent, RelativesBlocState>
 
 The example demonstrates the difference in the application's performance with the original (web) bloc and the bloc in the isolate. The example significantly and prolongedly loads the CPU, which very rarely happens in real applications, but it allows you to clearly see the decoupling of the UI performance from the business logic operations.
 
+https://github.com/kocherovets/isolated_bloc/assets/4235844/e5064e84-a02f-45c2-8ef9-a2730f73a1da
+

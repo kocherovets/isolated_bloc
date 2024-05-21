@@ -7,7 +7,7 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 
 import 'isolate_dispatcher.dart';
-import 'isolated_bloc.base.dart';
+import 'isolated_bloc_base.dart';
 
 class SendPortMessageToMain extends MessageToMain {
   final SendPort sendPort;

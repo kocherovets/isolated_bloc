@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'isolated_bloc.base.dart';
+import 'isolated_bloc_base.dart';
 
 class StopIsolate extends MessageToIsolate {}
 

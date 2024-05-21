@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 
-import 'isolated_bloc.base.dart';
+import 'isolated_bloc_base.dart';
 
 class InnerIsolatedBloc<Event, State> implements Bloc<Event, State> {
   final Bloc<Event, State> _bloc;

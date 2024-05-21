@@ -10,7 +10,6 @@ The library is very small, so you can easily determine if it suits your needs.
 
 1. The library does not support working with cubits. It works only with blocs.
 2. Due to the actual creation of blocs in an isolate different from the main one, in general, DI through constructor parameters for complex dependencies will cease to work. DI not based on context will need to be set up in the isolate where the blocs operate.
-3. Since isolates are not supported on the web, if a bloc is intended to be used there, additional configuration is needed to choose between a regular bloc or a bloc in an isolate depending on the platform.
 
 ## Usage
 
@@ -18,7 +17,7 @@ The library is very small, so you can easily determine if it suits your needs.
 
 ```yaml
 dependencies:
-  isolated_bloc: ^1.0.0
+  isolated_bloc: ^1.1.0
 ```
 
 ### Init
@@ -35,9 +34,9 @@ void main() async {
 }
 ```
 
-### Without web support
+### Transformation of an existing bloc
 
-If you don't need to support the web, in an existing application, to convert a bloc into a bloc running in an isolate, you only need to add three lines and change the class name of the existing bloc.
+In an existing application, to convert a bloc into a bloc running in an isolate, you only need to add three lines and change the class name of the existing bloc.
 
 from
 
@@ -62,57 +61,7 @@ class _CounterBloc extends Bloc<CounterBlocEvent, CounterBlocState> {
 }
 ```
 
-### With web support
-
-If you need to support the web, due to the lack of conditional compilation, the best way I found to choose the appropriate bloc based on the platform is to separate the type selection into different files and use conditional imports. If you know a more concise way, please share.
-
-from
-
-```dart
-//counter_bloc.dart
-
-class CounterBloc extends Bloc<CounterBlocEvent, CounterBlocState> {
-    ...
-}
-```
-
-to
-
-```dart
-//counter_bloc.dart
-
-class OriginalCounterBloc extends Bloc<CounterBlocEvent, CounterBlocState> {
-    ...
-}
-```
-
-```dart
-//counter_bloc_web.dart
-
-import 'counter_bloc.dart';
-
-typedef CounterBloc = OriginalCounterBloc;
-```
-
-```dart
-//counter_bloc_io.dart
-
-import 'package:isolated_bloc/isolated_bloc.dart';
-
-import 'counter_bloc.dart';
-
-class IsolatedCounterBloc extends IsolatedBloc<CounterBlocEvent, CounterBlocState> {
-  IsolatedCounterBloc() : super(() => OriginalCounterBloc());
-}
-
-typedef CounterBloc = IsolatedCounterBloc;
-```
-
-```dart
-//counter_page.dart
-
-import 'counter_bloc_web.dart' if (dart.library.io) 'counter_bloc_io.dart';
-```
+Since the use of isolates is not supported on the web, a simple empty wrapper around the bloc is used for the web, which does nothing by itself.
 
 ### DI
 

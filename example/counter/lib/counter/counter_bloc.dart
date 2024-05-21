@@ -1,6 +1,7 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:isolated_bloc/isolated_bloc.dart';
 
 part 'counter_bloc.freezed.dart';
 
@@ -14,10 +15,14 @@ sealed class CounterBlocState with _$CounterBlocStates {
   const factory CounterBlocState.value(int counter, int progress) = CounterBlocValue;
 }
 
-class OriginalCounterBloc extends Bloc<CounterBlocEvent, CounterBlocState> {
+class CounterBloc extends IsolatedBloc<CounterBlocEvent, CounterBlocState> {
+  CounterBloc() : super(() => _CounterBloc());
+}
+
+class _CounterBloc extends Bloc<CounterBlocEvent, CounterBlocState> {
   int _counter = 1;
 
-  OriginalCounterBloc() : super(const CounterBlocState.value(1, 0)) {
+  _CounterBloc() : super(const CounterBlocState.value(1, 0)) {
     on<CounterBlocIncrementEvent>(_onIncrement, transformer: droppable());
   }
 

@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'counter_bloc.dart';
-import 'counter_bloc_web.dart' if (dart.library.io) 'counter_bloc_io.dart';
-// import 'counter_bloc_web.dart';
 
 class CounterPage extends StatefulWidget {
   final String title;

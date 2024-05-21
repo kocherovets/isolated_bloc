@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
-class MessageToIsolate {}
+import 'isolated_bloc.base.dart';
 
 class StopIsolate extends MessageToIsolate {}
-
-class MessageToMain {}
 
 abstract class MessagesFromIsolateConsumer {
   void handleMessage(MessageToMain message);

@@ -78,28 +78,12 @@ class IsolatedBloc<Event, State> implements StateStreamableSource<State> {
   }
 }
 
-class CreateBlocMessageToIsolate<State, Event> extends MessageToIsolate {
-  final CreateBloc<State, Event> createBloc;
+class CreateBlocMessageToIsolate<Event, State> extends MessageToIsolate {
+  final CreateBloc<Event, State> createBloc;
   final SendPort toMainSendPort;
   final int uniqueKey;
 
   CreateBlocMessageToIsolate(this.createBloc, this.toMainSendPort, this.uniqueKey);
-}
-
-class CloseBlocMessageToIsolate extends MessageToIsolate {
-  final int key;
-
-  CloseBlocMessageToIsolate({required this.key});
-}
-
-class EventMessageToIsolate<E> extends MessageToIsolate {
-  final E event;
-
-  EventMessageToIsolate({required this.event});
-}
-
-class CallableMessageToIsolate extends MessageToIsolate {
-  void call() {}
 }
 
 class BlocIsolateLogic extends BidirectionalIsolateLogic {

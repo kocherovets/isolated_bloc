@@ -4,12 +4,12 @@ import 'package:bloc/bloc.dart';
 
 import 'isolated_bloc.base.dart';
 
-class IsolatedBloc<Event, State> implements Bloc<Event, State> {
+class InnerIsolatedBloc<Event, State> implements Bloc<Event, State> {
   final Bloc<Event, State> _bloc;
 
   static BlocMainIsolateLogic blocMainIsolateLogic = BlocMainIsolateLogic();
 
-  IsolatedBloc(CreateBloc<Event, State> createBloc) : _bloc = createBloc();
+  InnerIsolatedBloc(CreateBloc<Event, State> createBloc) : _bloc = createBloc();
 
   @override
   bool get isClosed => _bloc.isClosed;

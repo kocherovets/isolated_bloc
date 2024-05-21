@@ -15,7 +15,7 @@ class SendPortMessageToMain extends MessageToMain {
   SendPortMessageToMain({required this.sendPort});
 }
 
-class IsolatedBloc<Event, State> implements StateStreamableSource<State> {
+class InnerIsolatedBloc<Event, State> implements StateStreamableSource<State> {
   final CreateBloc<Event, State> _createBloc;
   final int _key = _random.nextInt(0x7fffffff);
 
@@ -39,7 +39,7 @@ class IsolatedBloc<Event, State> implements StateStreamableSource<State> {
   @override
   bool get isClosed => _stateController.isClosed;
 
-  IsolatedBloc(this._createBloc) : _state = _createBloc().state {
+  InnerIsolatedBloc(this._createBloc) : _state = _createBloc().state {
     _fromIsolatePort.listen((message) {
       if (message is SendPortMessageToMain) {
         _toIsolatePort = message.sendPort;

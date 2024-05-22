@@ -36,7 +36,7 @@ Moreover, the library allows blocs to work in different isolates. Each bloc can 
 
 ```yaml
 dependencies:
-  isolated_bloc: ^1.2.0
+  isolated_bloc: ^1.3.0
 ```
 
 ### Transformation of an existing bloc

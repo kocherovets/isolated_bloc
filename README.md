@@ -1,6 +1,7 @@
 # isolated_bloc
 
 [![Pub Package](https://img.shields.io/pub/v/isolated_bloc.svg?style=for-the-badge&logo=Dart)](https://pub.dev/packages/isolated_bloc)
+![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)
 [![GitHub Issues](https://img.shields.io/github/issues/kocherovets/isolated_bloc.svg?style=for-the-badge&logo=GitHub)](https://github.com/kocherovets/isolated_bloc/issues)
 [![GitHub Stars](https://img.shields.io/github/stars/kocherovets/isolated_bloc.svg?style=for-the-badge&logo=GitHub)](https://github.com/kocherovets/isolated_bloc/stargazers)
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge&logo=GitHub)](https://raw.githubusercontent.com/kocherovets/isolated_bloc/main/LICENSE)

@@ -7,9 +7,10 @@ import 'isolated_bloc_base.dart';
 class InnerIsolatedBloc<Event, State> implements Bloc<Event, State> {
   final Bloc<Event, State> _bloc;
 
-  static BlocMainIsolateLogic blocMainIsolateLogic = BlocMainIsolateLogic();
+  static InnerIsolatesDispatcher isolatesDispatcher = InnerIsolatesDispatcher();
 
-  InnerIsolatedBloc(CreateBloc<Event, State> createBloc) : _bloc = createBloc();
+  InnerIsolatedBloc(CreateBloc<Event, State> createBloc, {String? isolateName})
+      : _bloc = createBloc();
 
   @override
   bool get isClosed => _bloc.isClosed;
@@ -67,12 +68,22 @@ class InnerIsolatedBloc<Event, State> implements Bloc<Event, State> {
   }
 }
 
-class BlocMainIsolateLogic {
+class InnerBlocMainIsolateLogic {
   void sendMessage(MessageToIsolate message) {
     throw Exception('Dont use it in web');
   }
 
-  Future<void> run() async {}
+  void run() {}
 
   void handleMessage(MessageToMain event) {}
+}
+
+class InnerIsolatesDispatcher {
+  InnerBlocMainIsolateLogic isolate({String? isolateName}) {
+    return InnerBlocMainIsolateLogic();
+  }
+
+  static const String kDefaultIsolateName = 'defaultIsolatedBlocIsolate';
+
+  void removeIsolate({required String isolateName}) {}
 }

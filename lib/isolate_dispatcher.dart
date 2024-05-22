@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -21,33 +22,58 @@ class BidirectionalIsolate {
   final MessagesFromIsolateConsumer _fromIsolateConsumer;
   final ReceivePort _fromIsolatePort;
   SendPort? _toIsolatePort;
+  bool _isClosed = false;
+  final _defferedMessages = Queue<MessageToIsolate>();
 
   BidirectionalIsolate(
     this._logic,
     this._fromIsolateConsumer,
   ) : _fromIsolatePort = ReceivePort();
 
-  Future<void> start() async {
-    Completer completer = Completer<SendPort>();
-
+  void start(String isolateName) {
     _fromIsolatePort.listen((event) {
       if (event is SendPort) {
-        completer.complete(event);
+        _toIsolatePort = event;
+        if (_isClosed) {
+          _toIsolatePort?.send(StopIsolate());
+        }
       } else {
         _fromIsolateConsumer.handleMessage(event);
       }
     });
 
-    await Isolate.spawn<(SendPort, BidirectionalIsolateLogic)>(
+    Isolate.spawn<(SendPort, BidirectionalIsolateLogic)>(
       _entryPoint,
       (_fromIsolatePort.sendPort, _logic),
+      debugName: isolateName,
     );
-    _toIsolatePort = await completer.future;
   }
 
-  void stop() => _toIsolatePort?.send(StopIsolate());
+  void stop() {
+    sendMessage(StopIsolate());
+    _isClosed = true;
+  }
 
-  void sendMessage(MessageToIsolate message) => _toIsolatePort?.send(message);
+  void sendMessage([MessageToIsolate? message]) {
+    if (_isClosed) {
+      return;
+    }
+    if (_toIsolatePort != null) {
+      while (_defferedMessages.isNotEmpty) {
+        _toIsolatePort?.send(_defferedMessages.removeFirst());
+      }
+      if (message != null) {
+        _toIsolatePort?.send(message);
+      }
+    } else {
+      if (message != null) {
+        _defferedMessages.add(message);
+      }
+      Future.delayed(Duration(milliseconds: 50)).then((value) {
+        sendMessage();
+      });
+    }
+  }
 
   static void _entryPoint((SendPort, BidirectionalIsolateLogic) param) {
     var eventSendPort = param.$1;

@@ -1,6 +1,6 @@
 name: isolated_bloc
 description: "Support for running blocs in an isolate."
-version: 1.1.0
+version: 1.2.0
 repository: https://github.com/kocherovets/isolated_bloc.git
 
 environment:

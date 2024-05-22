@@ -1,10 +1,7 @@
 import 'package:counter/main_page.dart';
 import 'package:flutter/material.dart';
-import 'package:isolated_bloc/isolated_bloc.dart';
 
-void main() async {
-  await IsolatedBloc.blocMainIsolateLogic.run();
-
+void main() {
   runApp(const MyApp());
 }
 

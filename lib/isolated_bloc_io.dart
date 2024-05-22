@@ -1,6 +1,7 @@
 library;
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:isolate';
 import 'dart:math';
 
@@ -18,11 +19,13 @@ class SendPortMessageToMain extends MessageToMain {
 class InnerIsolatedBloc<Event, State> implements StateStreamableSource<State> {
   final CreateBloc<Event, State> _createBloc;
   final int _key = _random.nextInt(0x7fffffff);
+  final _defferedEvents = Queue<Event>();
 
   final ReceivePort _fromIsolatePort = ReceivePort();
   SendPort? _toIsolatePort;
 
-  static BlocMainIsolateLogic blocMainIsolateLogic = BlocMainIsolateLogic();
+  static InnerIsolatesDispatcher isolatesDispatcher = InnerIsolatesDispatcher();
+  late InnerBlocMainIsolateLogic _blocMainIsolateLogic;
 
   static final Random _random = Random();
 
@@ -39,7 +42,8 @@ class InnerIsolatedBloc<Event, State> implements StateStreamableSource<State> {
   @override
   bool get isClosed => _stateController.isClosed;
 
-  InnerIsolatedBloc(this._createBloc) : _state = _createBloc().state {
+  InnerIsolatedBloc(this._createBloc, {String? isolateName}) : _state = _createBloc().state {
+    _blocMainIsolateLogic = isolatesDispatcher.isolate(isolateName: isolateName);
     _fromIsolatePort.listen((message) {
       if (message is SendPortMessageToMain) {
         _toIsolatePort = message.sendPort;
@@ -49,22 +53,30 @@ class InnerIsolatedBloc<Event, State> implements StateStreamableSource<State> {
         _stateController.add(message);
       }
     });
-    blocMainIsolateLogic.sendMessage(CreateBlocMessageToIsolate(
+    _blocMainIsolateLogic.sendMessage(CreateBlocMessageToIsolate(
       _createBloc,
       _fromIsolatePort.sendPort,
       _key,
     ));
   }
 
-  void add(Event event) {
+  void add([Event? event]) {
     if (_stateController.isClosed) {
       return;
     }
     if (_toIsolatePort != null) {
-      _toIsolatePort?.send(EventMessageToIsolate(event: event));
+      while (_defferedEvents.isNotEmpty) {
+        _toIsolatePort?.send(EventMessageToIsolate(event: _defferedEvents.removeFirst()));
+      }
+      if (event != null) {
+        _toIsolatePort?.send(EventMessageToIsolate(event: event));
+      }
     } else {
+      if (event != null) {
+        _defferedEvents.add(event);
+      }
       Future.delayed(Duration(milliseconds: 50)).then((value) {
-        this.add(event);
+        add();
       });
     }
   }
@@ -72,7 +84,7 @@ class InnerIsolatedBloc<Event, State> implements StateStreamableSource<State> {
   @override
   Future<void> close() async {
     await _stateController.close();
-    blocMainIsolateLogic.sendMessage(CloseBlocMessageToIsolate(key: _key));
+    _blocMainIsolateLogic.sendMessage(CloseBlocMessageToIsolate(key: _key));
     _toIsolatePort = null;
     _fromIsolatePort.close();
   }
@@ -93,6 +105,7 @@ class BlocIsolateLogic extends BidirectionalIsolateLogic {
 
   @override
   void handleMessage(MessageToIsolate message) {
+    debugMessage(() => '[${Isolate.current.debugName}] $message');
     if (message is CreateBlocMessageToIsolate) {
       final bloc = message.createBloc();
       final subscription = bloc.stream.listen((state) {
@@ -105,6 +118,7 @@ class BlocIsolateLogic extends BidirectionalIsolateLogic {
 
       message.toMainSendPort.send(SendPortMessageToMain(sendPort: port.sendPort));
       final fromMainSubsription = port.listen((message) {
+        debugMessage(() => '[${Isolate.current.debugName}] $message');
         if (message is EventMessageToIsolate) {
           print(message.event);
           bloc.add(message.event);
@@ -126,18 +140,55 @@ class BlocIsolateLogic extends BidirectionalIsolateLogic {
   }
 }
 
-class BlocMainIsolateLogic implements MessagesFromIsolateConsumer {
+class InnerBlocMainIsolateLogic implements MessagesFromIsolateConsumer {
   late BidirectionalIsolate _task;
+  final String _isolateName;
+
+  InnerBlocMainIsolateLogic({required String isolateName}) : _isolateName = isolateName;
 
   void sendMessage(MessageToIsolate message) {
     _task.sendMessage(message);
   }
 
-  Future<void> run() async {
+  void run() {
     _task = BidirectionalIsolate(BlocIsolateLogic(), this);
-    await _task.start();
+    _task.start(_isolateName);
   }
 
   @override
   void handleMessage(MessageToMain event) {}
+}
+
+class InnerIsolatesDispatcher {
+  final Map<String, InnerBlocMainIsolateLogic> _isolateLogics = {};
+
+  static const String kDefaultIsolateName = 'default-isolated-bloc-isolate';
+
+  InnerBlocMainIsolateLogic isolate({String? isolateName}) {
+    isolateName = isolateName ?? kDefaultIsolateName;
+
+    final isolate = _isolateLogics[isolateName];
+    if (isolate != null) {
+      return isolate;
+    } else {
+      final isolate = InnerBlocMainIsolateLogic(isolateName: isolateName);
+      isolate.run();
+      _isolateLogics[isolateName] = isolate;
+      return isolate;
+    }
+  }
+
+  void removeIsolate({required String isolateName}) {
+    if (isolateName != kDefaultIsolateName) {
+      _isolateLogics[isolateName]?.sendMessage(StopIsolate());
+      _isolateLogics.remove(isolateName);
+    }
+  }
+}
+
+void debugMessage(String Function() callback) {
+  assert(() {
+    print(callback());
+    return true;
+  }());
 }

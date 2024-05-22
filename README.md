@@ -1,10 +1,21 @@
+- [Motivation](#Motivation)
+- [Limitations](#Limitations)
+- [Usage](#Usage)
+  * [Pubspec](#Pubspec)
+  * [Transformation of an existing bloc](#Transformation-of-an-existing-bloc)
+  * [DI](#DI)
+  * [Working with multiple isolates](#Working-with-multiple-isolates)
+- [Demo](#Demo)
+
+## Motivation:
+
 The library implements the idea of moving business logic to a separate isolate. It works on top of the well-known Bloc library, without changing it, but complementing it.
 
 The main idea of building an application using this library is to create business logic only with blocs and run all of them in a separate isolate. In this same isolate, it is assumed that most data providers, such as APIs and databases, will be created. This will significantly offload the main isolate for a responsive UI.
 
 However, the library does not require you to do so, as it works simply as a wrapper around existing blocs. Therefore, only some of the blocs can be moved to the isolate. Inconveniences may arise in designing interactions with data sources, which will need to be maintained in both the main isolate and the bloc isolate.
 
-The library is very small, so you can easily determine if it suits your needs.
+Moreover, the library allows blocs to work in different isolates. Each bloc can be assigned an isolate in which it will be created.
 
 ## Limitations:
 
@@ -17,21 +28,7 @@ The library is very small, so you can easily determine if it suits your needs.
 
 ```yaml
 dependencies:
-  isolated_bloc: ^1.1.0
-```
-
-### Init
-
-To initialize an isolate that works with blocs, you need to add one line. It is assumed that this isolate will exist for the entire duration of the application's runtime.
-
-```dart
-import 'package:isolated_bloc/isolated_bloc.dart';
-
-void main() async {
-  await IsolatedBloc.blocMainIsolateLogic.run();
-
-  runApp(const MyApp());
-}
+  isolated_bloc: ^1.2.0
 ```
 
 ### Transformation of an existing bloc
@@ -94,8 +91,7 @@ if (kIsWeb) {
   DI.registerSingleton(api);
 
 } else {
-  await IsolatedBloc.blocMainIsolateLogic.run();
-  IsolatedBloc.blocMainIsolateLogic.sendMessage(SetupDIMessageToIsolate());
+  IsolatedBloc.isolatesDispatcher.isolate().sendMessage(SetupDIMessageToIsolate());
 }
 
 ...
@@ -106,7 +102,39 @@ class OriginalRelativesBloc extends Bloc<RelativesBlocEvent, RelativesBlocState>
 }
 ```
 
-### Demo
+### Working with multiple isolates
+
+By default, all blocks operate in a single isolate. This setup does not require any additional configuration.
+
+However, each block can be assigned an isolate in which it will operate. Isolates in the library are distinguished by names. The default isolate name is `IsolatesDispatcher.kDefaultIsolateName`. To create a new isolate, you can simply specify its name when creating a block.
+
+```dart
+class CounterBloc extends IsolatedBloc<CounterBlocEvent, CounterBlocState> {
+  CounterBloc({required String isolateName})
+      : super(() => _CounterBloc(), isolateName: isolateName);
+}
+
+...
+
+BlocProvider(create: (BuildContext context) => CounterBloc(isolateName: _isolateName)),
+```
+
+Alternatively, you can explicitly obtain the isolate, for example, to configure DI (Dependency Injection) within it:
+
+```dart
+IsolatedBloc.isolatesDispatcher.isolate(isolateName: _isolateName);
+```
+
+If an isolate with this name does not yet exist, it will be created. 
+
+When the isolate is no longer needed, it can be removed:
+
+```dart
+IsolatedBloc.isolatesDispatcher.removeIsolate(isolateName: _isolateName);
+```
+If the isolate name is not specified in any of these cases, the default isolate will be used. This default isolate cannot be removed.
+
+## Demo
 
 The example demonstrates the difference in the application's performance with the original (web) bloc and the bloc in the isolate. The example significantly and prolongedly loads the CPU, which very rarely happens in real applications, but it allows you to clearly see the decoupling of the UI performance from the business logic operations.
 

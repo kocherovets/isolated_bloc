@@ -22,12 +22,8 @@ class PingPongGame extends StatelessWidget {
           providers: [
             BlocProvider(create: (BuildContext context) => BallBloc()),
             BlocProvider(
-                // create: (BuildContext context) =>
-                //     TopPlayerBloc(isolateName: IsolatesDispatcher.kDefaultIsolateName)),
                 create: (BuildContext context) => TopPlayerBloc(isolateName: 'top-player')),
             BlocProvider(
-                // create: (BuildContext context) =>
-                //     BottomPlayerBloc(isolateName: IsolatesDispatcher.kDefaultIsolateName)),
                 create: (BuildContext context) => BottomPlayerBloc(isolateName: 'bottom-player')),
           ],
           child: GameScreen(

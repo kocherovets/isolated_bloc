@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:io';
 import 'dart:isolate';
 
 import 'isolated_bloc_base.dart';

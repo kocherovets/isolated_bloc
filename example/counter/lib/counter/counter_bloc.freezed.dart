@@ -15,7 +15,7 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
-mixin _$CounterBlocEvents {}
+mixin _$CounterBlocEvent {}
 
 /// @nodoc
 
@@ -24,13 +24,14 @@ class _$CounterBlocIncrementEventImpl implements CounterBlocIncrementEvent {
 
   @override
   String toString() {
-    return 'CounterBlocEvents.increment()';
+    return 'CounterBlocEvent.increment()';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$CounterBlocIncrementEventImpl);
+        (other.runtimeType == runtimeType &&
+            other is _$CounterBlocIncrementEventImpl);
   }
 
   @override
@@ -42,44 +43,46 @@ abstract class CounterBlocIncrementEvent implements CounterBlocEvent {
 }
 
 /// @nodoc
-mixin _$CounterBlocStates {
-  int get value => throw _privateConstructorUsedError;
+mixin _$CounterBlocState {
+  int get counter => throw _privateConstructorUsedError;
   int get progress => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 
-class _$CounterBlocStateImpl implements CounterBlocValue {
-  const _$CounterBlocStateImpl(this.value, this.progress);
+class _$CounterBlocValueImpl implements CounterBlocValue {
+  const _$CounterBlocValueImpl(this.counter, this.progress);
 
   @override
-  final int value;
+  final int counter;
   @override
   final int progress;
 
   @override
   String toString() {
-    return 'CounterBlocStates.state(value: $value, progress: $progress)';
+    return 'CounterBlocState.value(counter: $counter, progress: $progress)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$CounterBlocStateImpl &&
-            (identical(other.value, value) || other.value == value) &&
-            (identical(other.progress, progress) || other.progress == progress));
+            other is _$CounterBlocValueImpl &&
+            (identical(other.counter, counter) || other.counter == counter) &&
+            (identical(other.progress, progress) ||
+                other.progress == progress));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, value, progress);
+  int get hashCode => Object.hash(runtimeType, counter, progress);
 }
 
 abstract class CounterBlocValue implements CounterBlocState {
-  const factory CounterBlocValue(final int value, final int progress) = _$CounterBlocStateImpl;
+  const factory CounterBlocValue(final int counter, final int progress) =
+      _$CounterBlocValueImpl;
 
   @override
-  int get value;
+  int get counter;
   @override
   int get progress;
 }

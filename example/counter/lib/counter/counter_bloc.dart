@@ -6,12 +6,12 @@ import 'package:isolated_bloc/isolated_bloc.dart';
 part 'counter_bloc.freezed.dart';
 
 @Freezed(copyWith: false, map: FreezedMapOptions.none, when: FreezedWhenOptions.none)
-sealed class CounterBlocEvent with _$CounterBlocEvents {
+sealed class CounterBlocEvent with _$CounterBlocEvent {
   const factory CounterBlocEvent.increment() = CounterBlocIncrementEvent;
 }
 
 @Freezed(copyWith: false, map: FreezedMapOptions.none, when: FreezedWhenOptions.none)
-sealed class CounterBlocState with _$CounterBlocStates {
+sealed class CounterBlocState with _$CounterBlocState {
   const factory CounterBlocState.value(int counter, int progress) = CounterBlocValue;
 }
 

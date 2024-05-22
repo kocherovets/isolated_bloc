@@ -52,6 +52,9 @@ class BidirectionalIsolate {
   void stop() {
     sendMessage(StopIsolate());
     _isClosed = true;
+    _fromIsolatePort.close();
+    _toIsolatePort = null;
+    _defferedMessages.clear();
   }
 
   void sendMessage([MessageToIsolate? message]) {
@@ -84,7 +87,7 @@ class BidirectionalIsolate {
 
     isolatedMessageReceivePort.listen((message) {
       if (message is StopIsolate) {
-        exit(0);
+        Isolate.exit();
       } else {
         logic.handleMessage(message);
       }

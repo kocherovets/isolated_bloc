@@ -63,7 +63,7 @@ class _CounterPageState extends State<CounterPage> with TickerProviderStateMixin
                             const SizedBox(height: 110),
                             if (state is CounterBlocValue)
                               Text(
-                                '${state.value}',
+                                '${state.counter}',
                                 style: const TextStyle(fontSize: 50),
                               ),
                             const SizedBox(height: 110),

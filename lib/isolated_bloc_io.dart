@@ -105,7 +105,6 @@ class BlocIsolateLogic extends BidirectionalIsolateLogic {
 
   @override
   void handleMessage(MessageToIsolate message) {
-    debugMessage(() => '[${Isolate.current.debugName}] $message');
     if (message is CreateBlocMessageToIsolate) {
       final bloc = message.createBloc();
       final subscription = bloc.stream.listen((state) {
@@ -118,9 +117,7 @@ class BlocIsolateLogic extends BidirectionalIsolateLogic {
 
       message.toMainSendPort.send(SendPortMessageToMain(sendPort: port.sendPort));
       final fromMainSubsription = port.listen((message) {
-        debugMessage(() => '[${Isolate.current.debugName}] $message');
         if (message is EventMessageToIsolate) {
-          print(message.event);
           bloc.add(message.event);
         }
       });
@@ -155,6 +152,10 @@ class InnerBlocMainIsolateLogic implements MessagesFromIsolateConsumer {
     _task.start(_isolateName);
   }
 
+  void stop() {
+    _task.stop();
+  }
+
   @override
   void handleMessage(MessageToMain event) {}
 }
@@ -180,15 +181,8 @@ class InnerIsolatesDispatcher {
 
   void removeIsolate({required String isolateName}) {
     if (isolateName != kDefaultIsolateName) {
-      _isolateLogics[isolateName]?.sendMessage(StopIsolate());
+      _isolateLogics[isolateName]?.stop();
       _isolateLogics.remove(isolateName);
     }
   }
-}
-
-void debugMessage(String Function() callback) {
-  assert(() {
-    print(callback());
-    return true;
-  }());
 }
